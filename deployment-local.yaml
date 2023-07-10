@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toggen-socket-load-client
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: toggen-socket-load-client
+  template:
+    metadata:
+      labels:
+        app: toggen-socket-load-client
+    spec:
+      containers:
+        - name: toggen-socket-load-client
+          image: toggen-socket-load-client:latest
+          ports:
+            - containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: toggen-socket-load-client-service
+spec:
+  selector:
+    app: toggen-socket-load-client
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: toggen-socket-ingress-service
+  namespace: toggen-socket-load-client
+  annotations:
+    nginx.ingress.kubernetes.io/default-backend: ingress-nginx-controller
+    kubernetes.io/ingress.class: nginx
+    ## tells ingress to check for regex in the config file
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Access-Control-Allow-Methods "POST, GET, OPTIONS";
+      add_header Access-Control-Allow-Credentials true;
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS"
+spec:
+  defaultBackend:
+    service:
+      name: toggen-socket-load-client-service
+      port:
+        number: 3000
