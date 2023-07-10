@@ -20,7 +20,7 @@ client.connect(headers, function (frame) {
 });
 
 
-const numConnections = 10000;
+const numConnections = 1000;
 var counter = 0;
 
 for (let i = 0; i < numConnections; i++) {

@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: toggen-socket
+  name: toggen-socket-load-client
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: toggen-socket
+      app: toggen-socket-load-client
   template:
     metadata:
       labels:
-        app: toggen-socket
+        app: toggen-socket-load-client
     spec:
       containers:
-        - name: toggen-socket
-          image: ridvanuyn/toggen-socket:latest
+        - name: toggen-socket-load-client
+          image: ridvanuyn/toggen-socket-load-client:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: toggen-socket-service
+  name: toggen-socket-load-client-service
 spec:
   selector:
-    app: toggen-socket
+    app: toggen-socket-load-client
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 3000
+      targetPort: 3001
   type: LoadBalancer
 
 ---
@@ -46,6 +46,6 @@ metadata:
 spec:
   defaultBackend:
     service:
-      name: toggen-socket-service
+      name: toggen-socket-load-client-service
       port:
-        number: 3000
+        number: 3001
